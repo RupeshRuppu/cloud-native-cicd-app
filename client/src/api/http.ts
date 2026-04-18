@@ -1,5 +1,3 @@
-const API_BASE = import.meta.env.API_BASE;
-
 const ACCESS_KEY = 'access_token';
 const REFRESH_KEY = 'refresh_token';
 
@@ -23,6 +21,12 @@ type RequestOptions = RequestInit & {
 type ErrorBody = {
 	detail?: string;
 	[key: string]: unknown;
+};
+
+const isExpiredTokenError = (status: number, message: string): boolean => {
+	if (status !== 401) return false;
+	const normalized = message.toLowerCase();
+	return normalized.includes('token') && normalized.includes('expired');
 };
 
 const parseError = async (res: Response): Promise<string> => {
@@ -51,13 +55,18 @@ export async function request<T>(
 		}
 	}
 
-	const response = await fetch(`${API_BASE}${path}`, {
+	const response = await fetch(`${path}`, {
 		...options,
 		headers,
 	});
 
 	if (!response.ok) {
-		throw new Error(await parseError(response));
+		const errorMessage = await parseError(response);
+		if (isExpiredTokenError(response.status, errorMessage)) {
+			tokenStore.clear();
+			window.location.replace('/auth');
+		}
+		throw new Error(errorMessage);
 	}
 
 	if (response.status === 204) {
