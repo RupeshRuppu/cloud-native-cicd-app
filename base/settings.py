@@ -58,7 +58,7 @@ ROOT_URLCONF = "base.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "dist"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -140,3 +140,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 APPEND_SLASH = False
+STATIC_URL = "/assets/"
+STATICFILES_DIRS = [
+    BASE_DIR / "dist" / "assets",
+]
