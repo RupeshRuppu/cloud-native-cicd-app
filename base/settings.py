@@ -147,3 +147,4 @@ STATIC_URL = "/assets/"
 STATICFILES_DIRS = [
     BASE_DIR / "dist" / "assets",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
