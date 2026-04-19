@@ -55,7 +55,10 @@ export async function request<T>(
 		}
 	}
 
-	const response = await fetch(`${path}`, {
+	const endpoint =
+		import.meta.env.IS_PROD === 'TRUE' ? path : 'http://127.0.0.1:8000';
+
+	const response = await fetch(`${endpoint}${path}`, {
 		...options,
 		headers,
 	});
