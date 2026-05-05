@@ -1,12 +1,21 @@
 services:
-  app:
+  web:
     build:
-      context: .
+      context: ./client
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    command: >
+      sh -c "nginx -g 'daemon off;'"
+
+  server:
+    build:
+      context: ./server
       dockerfile: Dockerfile
     command: >
       sh -c "
       python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
       python manage.py runserver 0.0.0.0:8000
       "
     container_name: notes-app
@@ -15,7 +24,7 @@ services:
     environment:
       DB_HOST: db
     ports:
-      - '8000:8000'
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -31,11 +40,11 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - notesdb:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
